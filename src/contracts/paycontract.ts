@@ -81,10 +81,8 @@ export class PaymentContract extends SmartContract {
 
         assert(this.checkSig(signature, publicKey), 'Signature verification failed')
 
-        //
         this.updateArr(currentDate, txIdPago)
-
-        // 
+       
         assert(this.isValid, 'Contract is no longer valid'); 
         
         let outputs: ByteString = this.buildStateOutput(this.ctx.utxo.value)
@@ -113,7 +111,7 @@ export class PaymentContract extends SmartContract {
 
 
     
-    @method()
+    @method() // This method is a future development
     public transferOwnership( 
         signature: Sig, 
         publicKey: PubKey,
@@ -125,11 +123,11 @@ export class PaymentContract extends SmartContract {
         
 
         this.isValid = false;
-        this.owner = newOwner;//validates identity in contract B
+        this.owner = newOwner;//must validate identity in a different contract
 
 
         // admin verification
         assert(this.checkSig(signature, publicKey), 'Signature verification failed')
-        //TO DO: when transferred, create a contract with same data on behalf of new owner
+        //TO DO: when transferred, create a contract with data from the last state of this one on behalf of the new owner
     }
 }
