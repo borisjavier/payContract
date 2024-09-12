@@ -1,0 +1,135 @@
+import {
+    SmartContract,
+    method,
+    prop,
+    assert,
+    PubKey,
+    Sig,
+    Addr,
+    hash256,
+    ByteString,
+    FixedArray,
+    toByteString,
+    fill
+} from 'scrypt-ts';
+
+export type Timestamp = bigint
+export type TxId = ByteString
+
+export type Payment = {
+    timestamp: Timestamp
+    txid: TxId
+}
+
+export const N = 3
+
+export type Payments = FixedArray<Payment, typeof N>
+
+
+export class PaymentContract extends SmartContract {
+    @prop(true)
+    owner: Addr;
+
+    @prop()
+    readonly adminPubKey: PubKey;
+
+    @prop()
+    readonly pagoGN: bigint;
+
+    @prop(true)
+    dataPayments: Payments;
+
+    @prop(true)
+    isValid: boolean;
+
+    @prop()
+    readonly EMPTY: TxId;
+
+
+    constructor(
+        owner: Addr,
+        adminPubKey: PubKey,
+        pagoGN: bigint,
+        datas: FixedArray<Timestamp, typeof N>,
+        txids: FixedArray<ByteString, typeof N>
+    ) {
+        super(...arguments);
+        this.owner = owner;
+        this.adminPubKey = adminPubKey;
+        this.pagoGN = pagoGN;
+        this.dataPayments = fill({
+            timestamp: 0n,
+            txid: toByteString('501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836')
+        }, N);
+        for (let i = 0; i < N; i++) {
+            this.dataPayments[i] = {
+                timestamp: datas[i],
+                txid: txids[i]
+            }
+        }
+        this.isValid = true;
+        this.EMPTY = toByteString('501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836'); //'0' is not a valid hex so I took this old useless transaction as a zero value
+    }
+
+    @method()
+    public pay(    
+        signature: Sig, 
+        publicKey: PubKey,
+        currentDate: bigint,
+        txIdPago: ByteString
+    ) {
+
+        assert(this.checkSig(signature, publicKey), 'Signature verification failed')
+
+        //
+        this.updateArr(currentDate, txIdPago)
+
+        // 
+        assert(this.isValid, 'Contract is no longer valid'); 
+        
+        let outputs: ByteString = this.buildStateOutput(this.ctx.utxo.value)
+        if (this.changeAmount > 0n) {
+            outputs += this.buildChangeOutput()
+        }
+        this.debug.diffOutputs(outputs);
+        assert(this.ctx.hashOutputs === hash256(outputs), 'hashOutputs mismatch')
+    }
+
+    @method()
+    updateArr(currentDate: Timestamp, txid: TxId): void {
+        console.log('Datos: ', currentDate + ' ' + txid)
+        for (let i = 0; i < N; i++) {
+            
+            if(this.dataPayments[i].timestamp < currentDate && this.dataPayments[i].txid == this.EMPTY) {
+             console.log('La condición se cumplió')
+             this.dataPayments[i] = {
+                timestamp: currentDate,
+                txid: txid
+            }
+            console.log(`${this.dataPayments[i].timestamp} no es menor que ${currentDate} y peor aún, ${this.dataPayments[i].txid} es ${this.EMPTY}`)
+            }
+         }
+    }
+
+
+    
+    @method()
+    public transferOwnership( 
+        signature: Sig, 
+        publicKey: PubKey,
+        newOwner: Addr
+    ) {
+        // contract is still valid
+        assert(this.isValid, 'Contract is no longer valid');
+
+        
+
+        this.isValid = false;
+        this.owner = newOwner;//validates identity in contract B
+
+
+        // admin verification
+        assert(this.checkSig(signature, publicKey), 'Signature verification failed')
+        //TO DO: when transferred, create a contract with same data on behalf of new owner
+    }
+}
