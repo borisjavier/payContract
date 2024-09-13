@@ -52,17 +52,19 @@ async function main(txId: string, atOutputIndex = 0) {
                 txid: txIdPago,
             }
         } else {
-            console.log(`El problema es: ${dataPayments[i].timestamp} no es menor que ${currentDate} o bien ${dataPayments[i].txid} no es igual a ${tx0}`)
+            console.log(`${dataPayments[i].timestamp} no es menor que ${currentDate} o bien ${dataPayments[i].txid} no es igual a ${tx0}`)
         }
     }
     console.log('dataPayments desde call.ts: ', dataPayments)
+    const qtyTokens: bigint = 50000n
     
     try {
         const nextInstance = instance.next();
         nextInstance.owner = owner;
         nextInstance.dataPayments = dataPayments;
+        nextInstance.qtyTokens = qtyTokens;
         nextInstance.isValid = true;
-        const { tx: unlockTx } = await instance.methods.pay(
+        const callContract = async () => instance.methods.pay(
              // findSigs filtra las firmas relevantes
              (sigResp) => findSig(sigResp, publicKey),
              pubKey,
@@ -78,7 +80,10 @@ async function main(txId: string, atOutputIndex = 0) {
              } as MethodCallOptions<PaymentContract>
         );
       
+        const { tx: unlockTx } = await callContract();
         console.log('Contract unlocked, transaction ID:', unlockTx.id);
+        console.log(`State: ${JSON.stringify(nextInstance.dataPayments)}`)
+        console.log(`payScript: ${JSON.stringify(nextInstance.payScript)}`)
         
     } catch (error) {
         console.error('Contract call failed:', error)
@@ -86,4 +91,4 @@ async function main(txId: string, atOutputIndex = 0) {
 
 
 }
-main('59a64fd9ace71fb2cf54bb81e53525d8ba978cd006899c0e45dac1136cd926e9').catch(console.error);
+main('e68c461679033e8b5be198ac3283784968e215634e4d6f2e8af69a7d489cc095').catch(console.error);

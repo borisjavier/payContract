@@ -34,7 +34,10 @@ export class PaymentContract extends SmartContract {
     readonly adminPubKey: PubKey;
 
     @prop()
-    readonly pagoGN: bigint;
+    readonly payScript: ByteString;
+
+    @prop(true)
+    qtyTokens: bigint;
 
     @prop(true)
     dataPayments: Payments;
@@ -49,14 +52,16 @@ export class PaymentContract extends SmartContract {
     constructor(
         owner: Addr,
         adminPubKey: PubKey,
-        pagoGN: bigint,
+        payScript: ByteString,
+        qtyTokens: bigint,
         datas: FixedArray<Timestamp, typeof N>,
         txids: FixedArray<ByteString, typeof N>
     ) {
         super(...arguments);
         this.owner = owner;
         this.adminPubKey = adminPubKey;
-        this.pagoGN = pagoGN;
+        this.payScript = payScript;
+        this.qtyTokens = qtyTokens;
         this.dataPayments = fill({
             timestamp: 0n,
             txid: toByteString('501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836')
