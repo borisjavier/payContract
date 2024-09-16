@@ -18,8 +18,10 @@ async function main(txId: string, atOutputIndex = 0) {
     const ownerPrivKey = bsv.PrivateKey.fromWIF('L3rjyArDQLsB3vCtX31rdyyxWyX21rJLHPxYbLmECjNRh7yA3bsu')
     const owner = Addr(ownerPrivKey.toAddress().toByteString());//Dirección BSV-contrato del dueño del contrato
     const currentDate: bigint = BigInt(Math.floor(Date.now() / 1000));
-    const tx0 = toByteString('501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836')
-    const txIdPago = toByteString('b1a7597134f1edbb9ab2dd421458c78ec58ae92a08f2a3294dc28556d762680d');
+    const tx0 = toByteString('501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836');
+    //
+   
+    const txIdPago = toByteString('b1a7597134f1edbb9ab2dd421458c78ec58ae92a08f2a3294dc28556d762680d');//obtida da publicação da transação
     await PaymentContract.loadArtifact()
 
     
@@ -83,7 +85,7 @@ async function main(txId: string, atOutputIndex = 0) {
         const { tx: unlockTx } = await callContract();
         console.log('Contract unlocked, transaction ID:', unlockTx.id);
         console.log(`State: ${JSON.stringify(nextInstance.dataPayments)}`)
-        console.log(`payScript: ${JSON.stringify(nextInstance.payScript)}`)
+        console.log(`We will pay ${nextInstance.amountGN} to quarksownerGN: ${JSON.stringify(nextInstance.addressGN)} `)
         
     } catch (error) {
         console.error('Contract call failed:', error)
@@ -91,4 +93,4 @@ async function main(txId: string, atOutputIndex = 0) {
 
 
 }
-main('e68c461679033e8b5be198ac3283784968e215634e4d6f2e8af69a7d489cc095').catch(console.error);
+main('d48556aabd6cb1a2950484ceef66787267fecb0ad923d02a45f94aad0773ab74').catch(console.error);

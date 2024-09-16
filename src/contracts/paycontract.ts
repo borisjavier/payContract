@@ -33,8 +33,11 @@ export class PaymentContract extends SmartContract {
     @prop()
     readonly adminPubKey: PubKey;
 
+    @prop(true)
+    addressGN: Addr;
+
     @prop()
-    readonly payScript: ByteString;
+    readonly amountGN: bigint;
 
     @prop(true)
     qtyTokens: bigint;
@@ -52,7 +55,8 @@ export class PaymentContract extends SmartContract {
     constructor(
         owner: Addr,
         adminPubKey: PubKey,
-        payScript: ByteString,
+        addressGN: Addr,
+        amountGN: bigint,
         qtyTokens: bigint,
         datas: FixedArray<Timestamp, typeof N>,
         txids: FixedArray<ByteString, typeof N>
@@ -60,7 +64,8 @@ export class PaymentContract extends SmartContract {
         super(...arguments);
         this.owner = owner;
         this.adminPubKey = adminPubKey;
-        this.payScript = payScript;
+        this.addressGN = addressGN;
+        this.amountGN = amountGN;
         this.qtyTokens = qtyTokens;
         this.dataPayments = fill({
             timestamp: 0n,
@@ -109,7 +114,7 @@ export class PaymentContract extends SmartContract {
                 timestamp: currentDate,
                 txid: txid
             }
-            console.log(`${this.dataPayments[i].timestamp} no es menor que ${currentDate} y peor aún, ${this.dataPayments[i].txid} es ${this.EMPTY}`)
+            console.log(`${this.dataPayments[i].timestamp} no es menor que ${currentDate}, y ${this.dataPayments[i].txid} es ${this.EMPTY}`)
             }
          }
     }
