@@ -125,19 +125,23 @@ export class PaymentContract extends SmartContract {
     public transferOwnership( 
         signature: Sig, 
         publicKey: PubKey,
-        newOwner: Addr
+        newOwner: Addr,
+        newAddressGN: Addr
     ) {
         // contract is still valid
         assert(this.isValid, 'Contract is no longer valid');
 
-        
-
-        this.isValid = false;
         this.owner = newOwner;//must validate identity in a different contract
-
+        this.addressGN = newAddressGN;
 
         // admin verification
         assert(this.checkSig(signature, publicKey), 'Signature verification failed')
         //TO DO: when transferred, create a contract with data from the last state of this one on behalf of the new owner
+        let outputs: ByteString = this.buildStateOutput(this.ctx.utxo.value)
+        if (this.changeAmount > 0n) {
+            outputs += this.buildChangeOutput()
+        }
+        this.debug.diffOutputs(outputs);
+        assert(this.ctx.hashOutputs === hash256(outputs), 'hashOutputs mismatch')
     }
 }

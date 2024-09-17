@@ -18,11 +18,10 @@ async function main() {
             '501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836', '501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836', '501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836'    
         ]
 
-    const ownerPrivKey = bsv.PrivateKey.fromWIF('L3rjyArDQLsB3vCtX31rdyyxWyX21rJLHPxYbLmECjNRh7yA3bsu')
-    const owner = Addr(ownerPrivKey.toAddress().toByteString());//Dirección BSV-contrato del dueño del contrato
+    
+    const ownerPubKey = bsv.PublicKey.fromHex('02d9b4d8362ac9ed90ef2a7433ffbeeb1a14f1e6a0db7e3d9963f6c0629f43e2db');//Alice's Pubkey
+    const owner = Addr(ownerPubKey.toAddress().toByteString());//Dirección BSV-contrato del dueño del contrato
     const PubKeyGN = bsv.PublicKey.fromHex('02e750d107190e9a8a944bc14f485c89483a5baa23bc66f2327759a60035312fcc'); //pubKey de dirección GN del dueño del contrato
-    console.log(PubKeyGN.toHex())
-
     const addressGN = Addr(PubKeyGN.toAddress().toByteString());
     const amountQuarks = 2125n;
 
@@ -43,6 +42,7 @@ async function main() {
     const deployTx = await contract.deploy(1);
     console.log(`Contract deployed at ${deployTx.id}`);
     console.log(`State: ${JSON.stringify(contract.dataPayments)}`)
+    console.log(`addressOwner: ${JSON.stringify(contract.owner)}`)
     console.log(`addressGN: ${JSON.stringify(contract.addressGN)}`)
 }
 

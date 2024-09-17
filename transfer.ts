@@ -15,13 +15,15 @@ async function main(txId: string, atOutputIndex = 0) {
     const pubKey = PubKey(privateKey.publicKey.toHex());
     const publicKey = privateKey.publicKey;
 
-    const ownerPubKey = bsv.PublicKey.fromHex('02d9b4d8362ac9ed90ef2a7433ffbeeb1a14f1e6a0db7e3d9963f6c0629f43e2db');//Alice's Pubkey
-    const owner = Addr(ownerPubKey.toAddress().toByteString());
-    const currentDate: bigint = BigInt(Math.floor(Date.now() / 1000));
+    const newOwnerPubKey = bsv.PublicKey.fromHex('038c506b4130008ff516823a3334b9df1243675a09710ce3832898e727e69d33db');//Bob's Pubkey
+    const newOwner = Addr(newOwnerPubKey.toAddress().toByteString());
+    const newGNPubKey = bsv.PublicKey.fromHex('025f32bdd55fbd63d689d6206399e5aedb90e116cc975b6b85c2e500a1d5de0f17');//Bob's Pubkey
+    const newOwnerGN = Addr(newGNPubKey.toAddress().toByteString());
+    //const currentDate: bigint = BigInt(Math.floor(Date.now() / 1000));
     const tx0 = toByteString('501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836');
     //
    
-    const txIdPago = toByteString('b1a7597134f1edbb9ab2dd421458c78ec58ae92a08f2a3294dc28556d762680d');//obtida da publicação da transação GN
+    //const txIdPago = toByteString('b1a7597134f1edbb9ab2dd421458c78ec58ae92a08f2a3294dc28556d762680d');//obtida da publicação da transação de GN
     await PaymentContract.loadArtifact()
 
     
@@ -47,7 +49,7 @@ async function main(txId: string, atOutputIndex = 0) {
             timestamp: datas[i],
             txid: txids[i],
         }
-        if(dataPayments[i].timestamp < currentDate && dataPayments[i].txid == tx0) {
+        /*if(dataPayments[i].timestamp < currentDate && dataPayments[i].txid == tx0) {
             console.log(`${dataPayments[i].timestamp} es menor que ${currentDate} y ${dataPayments[i].txid} no es igual a ${tx0}`)
             dataPayments[i] = {
                 timestamp: currentDate,
@@ -55,23 +57,24 @@ async function main(txId: string, atOutputIndex = 0) {
             }
         } else {
             console.log(`${dataPayments[i].timestamp} no es menor que ${currentDate} o bien ${dataPayments[i].txid} no es igual a ${tx0}`)
-        }
+        }*/
     }
     console.log('dataPayments desde call.ts: ', dataPayments)
     const qtyTokens: bigint = 50000n
     
     try {
         const nextInstance = instance.next();
-        nextInstance.owner = owner;
         nextInstance.dataPayments = dataPayments;
         nextInstance.qtyTokens = qtyTokens;
+        nextInstance.owner = newOwner;
+        nextInstance.addressGN = newOwnerGN;
         nextInstance.isValid = true;
-        const callContract = async () => instance.methods.pay(
+        const callContract = async () => instance.methods.transferOwnership(
              // findSigs filtra las firmas relevantes
              (sigResp) => findSig(sigResp, publicKey),
              pubKey,
-             currentDate,
-             txIdPago,
+             newOwner,
+             newOwnerGN,
              {
                 next: {
                     instance: nextInstance,
@@ -93,4 +96,4 @@ async function main(txId: string, atOutputIndex = 0) {
 
 
 }
-main('61bb7ca8804efe953eee38be12ffeed9a429256bdce5352a4a3a7e79685b45a8').catch(console.error);
+main('4aa0b0722db11ff50bdd73c29cc8274481a212ad746c3caa38f5778743971983').catch(console.error);
