@@ -12,7 +12,7 @@ async function main() {
     // Parámetros del contrato
     const qtyTokens = BigInt(50000); // Pago en quarks
 
-        const datas: FixedArray<Timestamp, typeof N> = [1726087745n, 1726087805n, 1726087865n]
+        const datas: FixedArray<Timestamp, typeof N> = [1726598373n, 1726598433n, 1726598493n]
 
         const txids: FixedArray<ByteString, typeof N> = [
             '501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836', '501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836', '501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836'    

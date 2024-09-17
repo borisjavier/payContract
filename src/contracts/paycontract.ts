@@ -91,9 +91,9 @@ export class PaymentContract extends SmartContract {
 
         assert(this.checkSig(signature, publicKey), 'Signature verification failed')
 
+        assert(this.isValid, 'Contract paid. No longer valid.'); 
+
         this.updateArr(currentDate, txIdPago)
-       
-        assert(this.isValid, 'Contract is no longer valid'); 
         
         let outputs: ByteString = this.buildStateOutput(this.ctx.utxo.value)
         if (this.changeAmount > 0n) {
@@ -105,11 +105,16 @@ export class PaymentContract extends SmartContract {
 
     @method()
     updateArr(currentDate: Timestamp, txid: TxId): void {
+
         console.log('Datos: ', currentDate + ' ' + txid)
         for (let i = 0; i < N; i++) {
             
             if(this.dataPayments[i].timestamp < currentDate && this.dataPayments[i].txid == this.EMPTY) {
              console.log('La condición se cumplió')
+             if (i === N - 1) {
+                this.isValid = false;
+                console.log("El último elemento ha sido modificado, isValid ahora es false.");
+            }
              this.dataPayments[i] = {
                 timestamp: currentDate,
                 txid: txid
@@ -128,14 +133,16 @@ export class PaymentContract extends SmartContract {
         newOwner: Addr,
         newAddressGN: Addr
     ) {
+        // admin verification
+        assert(this.checkSig(signature, publicKey), 'Signature verification failed')
+
         // contract is still valid
         assert(this.isValid, 'Contract is no longer valid');
 
         this.owner = newOwner;//must validate identity in a different contract
         this.addressGN = newAddressGN;
 
-        // admin verification
-        assert(this.checkSig(signature, publicKey), 'Signature verification failed')
+
         //TO DO: when transferred, create a contract with data from the last state of this one on behalf of the new owner
         let outputs: ByteString = this.buildStateOutput(this.ctx.utxo.value)
         if (this.changeAmount > 0n) {

@@ -31,12 +31,14 @@ async function main(txId: string, atOutputIndex = 0) {
     await instance.connect(signer); //getDefaultSigner(privateKey)
     
     const datas: FixedArray<Timestamp, typeof N> = 
-    [1726087745n, 1726087805n, 1726087865n]
+    [1726596493n, 1726596553n, 1726596613n]
    
     //console.log('datas: ', datas)
     const txids: FixedArray<ByteString, typeof N> = [
         tx0, tx0, tx0    
     ]
+
+    let isValid: boolean = true;
     //console.log('txids: ', txids)
     const dataPayments = fill({
         timestamp: 0n,
@@ -49,6 +51,11 @@ async function main(txId: string, atOutputIndex = 0) {
         }
         if(dataPayments[i].timestamp < currentDate && dataPayments[i].txid == tx0) {
             console.log(`${dataPayments[i].timestamp} es menor que ${currentDate} y ${dataPayments[i].txid} no es igual a ${tx0}`)
+            if (i === N - 1) {
+                isValid = false; // Cambiar isValid a false
+                console.log("El último elemento ha sido modificado, isValid ahora es false.");
+            }
+
             dataPayments[i] = {
                 timestamp: currentDate,
                 txid: txIdPago,
@@ -57,7 +64,8 @@ async function main(txId: string, atOutputIndex = 0) {
             console.log(`${dataPayments[i].timestamp} no es menor que ${currentDate} o bien ${dataPayments[i].txid} no es igual a ${tx0}`)
         }
     }
-    console.log('dataPayments desde call.ts: ', dataPayments)
+    console.log('dataPayments desde call.ts: ', dataPayments);
+    console.log('isValid: ', isValid); // Imprimir el estado final de isValid
     const qtyTokens: bigint = 50000n
     
     try {
@@ -65,7 +73,7 @@ async function main(txId: string, atOutputIndex = 0) {
         nextInstance.owner = owner;
         nextInstance.dataPayments = dataPayments;
         nextInstance.qtyTokens = qtyTokens;
-        nextInstance.isValid = true;
+        nextInstance.isValid = isValid;
         const callContract = async () => instance.methods.pay(
              // findSigs filtra las firmas relevantes
              (sigResp) => findSig(sigResp, publicKey),
@@ -93,4 +101,4 @@ async function main(txId: string, atOutputIndex = 0) {
 
 
 }
-main('61bb7ca8804efe953eee38be12ffeed9a429256bdce5352a4a3a7e79685b45a8').catch(console.error);
+main('cc8b33397b5d7ef89edee29ab3024b625b06b7ee3ad00fe6bf83f465cbae0179').catch(console.error);

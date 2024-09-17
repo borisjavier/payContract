@@ -33,8 +33,7 @@ async function main(txId: string, atOutputIndex = 0) {
     await instance.connect(signer); //getDefaultSigner(privateKey)
     
     const datas: FixedArray<Timestamp, typeof N> = 
-    [1726087745n, 1726087805n, 1726087865n]
-   
+    [1726598373n, 1726598433n, 1726598493n]
     //console.log('datas: ', datas)
     const txids: FixedArray<ByteString, typeof N> = [
         tx0, tx0, tx0    
@@ -49,22 +48,13 @@ async function main(txId: string, atOutputIndex = 0) {
             timestamp: datas[i],
             txid: txids[i],
         }
-        /*if(dataPayments[i].timestamp < currentDate && dataPayments[i].txid == tx0) {
-            console.log(`${dataPayments[i].timestamp} es menor que ${currentDate} y ${dataPayments[i].txid} no es igual a ${tx0}`)
-            dataPayments[i] = {
-                timestamp: currentDate,
-                txid: txIdPago,
-            }
-        } else {
-            console.log(`${dataPayments[i].timestamp} no es menor que ${currentDate} o bien ${dataPayments[i].txid} no es igual a ${tx0}`)
-        }*/
     }
     console.log('dataPayments desde call.ts: ', dataPayments)
     const qtyTokens: bigint = 50000n
     
     try {
         const nextInstance = instance.next();
-        nextInstance.dataPayments = dataPayments;
+        //nextInstance.dataPayments = dataPayments;
         nextInstance.qtyTokens = qtyTokens;
         nextInstance.owner = newOwner;
         nextInstance.addressGN = newOwnerGN;
@@ -88,7 +78,8 @@ async function main(txId: string, atOutputIndex = 0) {
         const { tx: unlockTx } = await callContract();
         console.log('Contract unlocked, transaction ID:', unlockTx.id);
         console.log(`State: ${JSON.stringify(nextInstance.dataPayments)}`)
-        console.log(`We will pay ${nextInstance.amountGN} to quarksownerGN: ${JSON.stringify(nextInstance.addressGN)} `)
+        console.log(`addressOwner: ${JSON.stringify(nextInstance.owner)}`)
+        console.log(`addressGN: ${JSON.stringify(nextInstance.addressGN)}`)
         
     } catch (error) {
         console.error('Contract call failed:', error)
@@ -96,4 +87,4 @@ async function main(txId: string, atOutputIndex = 0) {
 
 
 }
-main('4aa0b0722db11ff50bdd73c29cc8274481a212ad746c3caa38f5778743971983').catch(console.error);
+main('72b4c8ca2d1487685d46f7ffc206eeedde0bfde3e5acdf5b14047375c84ea2f8').catch(console.error);
