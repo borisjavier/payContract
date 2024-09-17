@@ -14,7 +14,8 @@ async function main(txId: string, atOutputIndex = 0) {
     const privateKey = bsv.PrivateKey.fromWIF(myPrivateKey);
     const pubKey = PubKey(privateKey.publicKey.toHex());
     const publicKey = privateKey.publicKey;
-
+    const oldOwnerPubKey = bsv.PublicKey.fromHex('02d9b4d8362ac9ed90ef2a7433ffbeeb1a14f1e6a0db7e3d9963f6c0629f43e2db');//Alice's Pubkey
+    const oldOwner = Addr(oldOwnerPubKey.toAddress().toByteString());
     const newOwnerPubKey = bsv.PublicKey.fromHex('038c506b4130008ff516823a3334b9df1243675a09710ce3832898e727e69d33db');//Bob's Pubkey
     const newOwner = Addr(newOwnerPubKey.toAddress().toByteString());
     const newGNPubKey = bsv.PublicKey.fromHex('025f32bdd55fbd63d689d6206399e5aedb90e116cc975b6b85c2e500a1d5de0f17');//Bob's Pubkey
@@ -63,6 +64,7 @@ async function main(txId: string, atOutputIndex = 0) {
              // findSigs filtra las firmas relevantes
              (sigResp) => findSig(sigResp, publicKey),
              pubKey,
+             oldOwner,
              newOwner,
              newOwnerGN,
              {
@@ -87,4 +89,4 @@ async function main(txId: string, atOutputIndex = 0) {
 
 
 }
-main('72b4c8ca2d1487685d46f7ffc206eeedde0bfde3e5acdf5b14047375c84ea2f8').catch(console.error);
+main('fb5e4189b26a47e1c271959714bede40f0f505ff4833bd92b4af1a65be6ae213').catch(console.error);

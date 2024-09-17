@@ -36,8 +36,8 @@ export class PaymentContract extends SmartContract {
     @prop(true)
     addressGN: Addr;
 
-    @prop()
-    readonly amountGN: bigint;
+    @prop(true)
+    amountGN: bigint;
 
     @prop(true)
     qtyTokens: bigint;
@@ -47,6 +47,9 @@ export class PaymentContract extends SmartContract {
 
     @prop(true)
     isValid: boolean;
+
+    @prop(true)
+    isOwner: boolean;
 
     @prop()
     readonly EMPTY: TxId;
@@ -78,6 +81,7 @@ export class PaymentContract extends SmartContract {
             }
         }
         this.isValid = true;
+        this.isOwner = true;
         this.EMPTY = toByteString('501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836'); //'0' is not a valid hex so I took this old useless transaction as a zero value
     }
 
@@ -113,7 +117,7 @@ export class PaymentContract extends SmartContract {
              console.log('La condición se cumplió')
              if (i === N - 1) {
                 this.isValid = false;
-                console.log("El último elemento ha sido modificado, isValid ahora es false.");
+                console.log("El último pago fue efectuado, isValid ahora es false.");
             }
              this.dataPayments[i] = {
                 timestamp: currentDate,
@@ -130,12 +134,16 @@ export class PaymentContract extends SmartContract {
     public transferOwnership( 
         signature: Sig, 
         publicKey: PubKey,
+        oldOwner: Addr,
         newOwner: Addr,
         newAddressGN: Addr
     ) {
         // admin verification
         assert(this.checkSig(signature, publicKey), 'Signature verification failed')
 
+        //verify owner
+        this.verifyId(oldOwner);
+        assert(this.isOwner, `Not the owner of this contract`)
         // contract is still valid
         assert(this.isValid, 'Contract is no longer valid');
 
@@ -151,4 +159,41 @@ export class PaymentContract extends SmartContract {
         this.debug.diffOutputs(outputs);
         assert(this.ctx.hashOutputs === hash256(outputs), 'hashOutputs mismatch')
     }
+
+    @method() // This method is a future development
+    public transferPartial( 
+        signature: Sig, 
+        publicKey: PubKey,
+        oldOwner: Addr,
+        newAmountGN: bigint,
+        newQtyTokens: bigint
+    ) {
+        // admin verification
+        assert(this.checkSig(signature, publicKey), 'Signature verification failed');
+
+        //verify owner
+        this.verifyId(oldOwner);
+        assert(this.isOwner, `Not the owner of this contract`)
+
+        // contract is still valid
+        assert(this.isValid, 'Contract is no longer valid');
+
+        this.amountGN = newAmountGN;
+        this.qtyTokens = newQtyTokens;
+
+
+        //TO DO: when transferred, create a contract with data from the last state of this one on behalf of the new owner
+        let outputs: ByteString = this.buildStateOutput(this.ctx.utxo.value)
+        if (this.changeAmount > 0n) {
+            outputs += this.buildChangeOutput()
+        }
+        this.debug.diffOutputs(outputs);
+        assert(this.ctx.hashOutputs === hash256(outputs), 'hashOutputs mismatch')
+    }
+
+    @method()
+    verifyId(owner: Addr): void {
+        this.isOwner = (this.owner == owner)? true: false;
+    }
+
 }
