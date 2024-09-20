@@ -1,5 +1,5 @@
 import { PaymentContract, Timestamp, N } from './src/contracts/payContract';
-import { bsv, DefaultProvider, TestWallet, PubKey, Addr, ByteString, FixedArray } from 'scrypt-ts';
+import { bsv, DefaultProvider, TestWallet, PubKey, Addr, ByteString, FixedArray, toByteString, fill } from 'scrypt-ts';
 import { myPrivateKey, adminPublicKey } from './config';
 
 async function main() {
@@ -14,9 +14,11 @@ async function main() {
 
         const datas: FixedArray<Timestamp, typeof N> = [1726598373n, 1726598433n, 1726598493n]
 
-        const txids: FixedArray<ByteString, typeof N> = [
+        const t: ByteString = toByteString('501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836');
+        const txids: FixedArray<ByteString, typeof N> = fill(t, N);
+        /*const txids: FixedArray<ByteString, typeof N> = [
             '501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836', '501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836', '501a9448665a70e3efe50adafc0341c033e2f22913cc0fb6b76cbcb5c54e7836'    
-        ]
+        ]*/
 
     
     const ownerPubKey = bsv.PublicKey.fromHex('02d9b4d8362ac9ed90ef2a7433ffbeeb1a14f1e6a0db7e3d9963f6c0629f43e2db');//Alice's Pubkey
